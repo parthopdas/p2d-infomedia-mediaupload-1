@@ -12,7 +12,7 @@
   angular
     .module("webApiSample")
     .controller("HomeCtrl", [ "$window",
-      "fileService", "Upload", "apiUrl", function($window, fileService, Upload, apiUrl) {
+      "fileService", "mediaService", "Upload", "apiUrl", function($window, fileService, mediaService, Upload, apiUrl) {
 
         var vm = this;
 
