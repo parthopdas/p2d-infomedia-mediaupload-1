@@ -25,7 +25,7 @@ namespace AspNetWebApi.Controllers
         /// <returns></returns>
         public async Task<IHttpActionResult> Get()
         {
-            var photos = new List<PhotoViewModel>();
+            var photos = new List<Media>();
 
             var photoFolder = new DirectoryInfo(workingFolder);
 
@@ -34,7 +34,7 @@ namespace AspNetWebApi.Controllers
                 photos = photoFolder.EnumerateFiles()
                     .Where(fi => new[] { ".jpeg", ".jpg", ".bmp", ".png", ".gif", ".tiff"}
                         .Contains(fi.Extension.ToLower()))
-                    .Select(fi => new PhotoViewModel
+                    .Select(fi => new Media
                     {
                         Name = fi.Name,
                         Created = fi.CreationTime,
@@ -95,34 +95,17 @@ namespace AspNetWebApi.Controllers
         /// <returns></returns>
         public async Task<IHttpActionResult> Add()
         {
-            await Task.Delay(10000);
-
-            // Check if the request contains multipart/form-data.
             if (!Request.Content.IsMimeMultipartContent("form-data"))
             {
                 return BadRequest("Unsupported media type");
             }
+
             try
             {
                 var provider = new CustomMultipartFormDataStreamProvider(workingFolder);
-                //await Request.Content.ReadAsMultipartAsync(provider);
                 await Task.Run(async () => await Request.Content.ReadAsMultipartAsync(provider));
 
-                var photos = new List<PhotoViewModel>();
-
-                foreach (var file in provider.FileData)
-                {
-                    var fileInfo = new FileInfo(file.LocalFileName);
-
-                    photos.Add(new PhotoViewModel
-                    {
-                        Name = fileInfo.Name,
-                        Created = fileInfo.CreationTime,
-                        Modified = fileInfo.LastWriteTime,
-                        Size = fileInfo.Length / 1024
-                    });
-                }
-                return Ok(new {Message = "Photos uploaded ok", Photos = photos});
+                return Ok();
             }
             catch (Exception ex)
             {

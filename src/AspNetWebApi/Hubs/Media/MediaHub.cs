@@ -1,31 +1,54 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using AspNetWebApi.Models.Notes;
+﻿using AspNetWebApi.Models;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
+using System;
+using System.IO;
+using System.Web;
 
 namespace AspNetWebApi.Hubs.Notes
 {
     [HubName("mediaHub")]
-    public class NotesHub : Hub<IMediaCallbacks>, IMediaCalls
+    public class NotesHub : Hub<IMediaCallbacks>
     {
-        public async Task AddMedia(string note)
-        {
-            Media newNote = NotesService.Add(note);
+        private readonly string workingFolder = HttpRuntime.AppDomainAppPath + @"\Uploads";
 
-            await Clients.All.BroadcastNewMedia(newNote);
+        private FileSystemWatcher watcher = new FileSystemWatcher();
+
+        public NotesHub()
+        {
+            watcher.Path = workingFolder;
+            watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            watcher.Filter = "*.*";
+
+            watcher.Created += new FileSystemEventHandler(OnChanged);
+            watcher.Deleted += new FileSystemEventHandler(OnChanged);
+
+            watcher.EnableRaisingEvents = true;
         }
 
-        public IEnumerable<Media> GetAllMedia()
+        private void OnChanged(object source, FileSystemEventArgs e)
         {
-            return NotesService.GetAll();
-        }
-
-        public async Task RemoveMedia(int noteId)
-        {
-            if (NotesService.Remove(noteId))
+            if (e.ChangeType == WatcherChangeTypes.Created)
             {
-                await Clients.All.BroadcastRemoveMedia(noteId);
+                FileInfo fileInfo = new FileInfo(e.FullPath);
+
+                var media = new Media
+                {
+                    Name = fileInfo.Name,
+                    Created = fileInfo.CreationTime,
+                    Modified = fileInfo.LastWriteTime,
+                    Size = fileInfo.Length / 1024
+                };
+
+                Clients.All.BroadcastNewMedia(media);
+            }
+            else if (e.ChangeType == WatcherChangeTypes.Deleted)
+            {
+                Clients.All.BroadcastRemoveMedia(e.Name);
+            }
+            else
+            {
+                Console.WriteLine($"{e.FullPath} -> {e.ChangeType}");
             }
         }
     }

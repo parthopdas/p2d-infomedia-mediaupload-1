@@ -2,26 +2,56 @@
 
   "use strict";
 
-  /**
-   * @ngdoc function
-   * @name webApiSample.controller:HomeCtrl
-   * @description
-   * # HomeCtrl
-   * Controller of the webApiSample
-   */
   angular
     .module("webApiSample")
-    .controller("HomeCtrl", [ "$window",
-      "fileService", "mediaService", "Upload", "apiUrl", function($window, fileService, mediaService, Upload, apiUrl) {
+    .controller("HomeCtrl",
+      ["$scope", "mediaService", "fileService", function($scope, fileCallbackService, fileService) {
 
         var vm = this;
 
-        //Variables
+        vm.connected = false;
+        vm.connectionId = "not connected";
+
         vm.photos = [];
         vm.files = [];
         vm.previewPhoto = {};
 
-        //Functions
+        vm.activate = activate;
+        vm.uploadFiles = uploadFiles;
+        vm.remove = removePhoto;
+        vm.setPreviewPhoto = setPreviewPhoto;
+
+        function activate() {
+          fileCallbackService.initialize();
+
+          getAllFiles();
+
+          $scope.$on(signalR.onConnected, function (event, args) {
+            connectedToSignalR(args.connectionId);
+          });
+
+          $scope.$on(mediaSignalR.onNewMedia, function (event, args) {
+              $scope.$apply(function() {
+                onNewMedia(args.media);
+              });
+          });
+
+          $scope.$on(mediaSignalR.onRemoveMedia, function (event, args) {
+            $scope.$apply(function () {
+              onRemoveMedia(args.mediaId);
+            });
+          });
+        }
+
+        function connectedToSignalR(connectionId) {
+          $scope.$apply(function () {
+            vm.connected = true;
+            vm.connectionId = connectionId;
+
+            console.log("HomeCtrl.connectedToSignalR");
+          });
+        }
+
         function setPreviewPhoto(photo) {
           if (photo && !photo.Uploading) {
             vm.previewPhoto = photo;
@@ -30,7 +60,7 @@
           }
         }
 
-        function activate() {
+        function getAllFiles() {
           fileService.getAll()
             .then(function (data) {
               vm.photos = data.data.Photos;
@@ -41,35 +71,32 @@
         }
 
         function uploadFiles(files) {
-          vm.photos.push({ Name: files[0].name, Size: files[0].size, Uploading: true });
-          vm.photos.sort((o1, o2) => o1.Name.localeCompare(o2.Name));
+          fileService
+            .uploadPhoto(files)
+            .then(
+                r => { }, 
+                err => console.log("Error status: " + err.status));
+        }
 
-          Upload.upload({
-              url: apiUrl,
-              data: { file: files }
-            })
-            .then(function(response) {
-              activate();
-              setPreviewPhoto();
-            }, function(err) {
-              console.log("Error status: " + err.status);
-            });
+        function onNewMedia(photo) {
+          if (!vm.photos.find(e => e.Name === photo.Name)) {
+            vm.photos.push(photo);
+          }
+        }
+
+        function onRemoveMedia(name) {
+          vm.photos = vm.photos.filter(e => e.Name !== name);
         }
 
         function removePhoto(photo) {
-          fileService.deletePhoto(photo.Name)
-            .then(function() {
-              activate();
-
-              setPreviewPhoto();
-            });
+          fileService
+            .deletePhoto(photo.Name)
+            .then(
+              r => { }, 
+              err => console.log("Error status: " + err.status));
         }
 
-        //Set scope 
-        activate();
-        vm.uploadFiles = uploadFiles;
-        vm.remove = removePhoto;
-        vm.setPreviewPhoto = setPreviewPhoto;
+        vm.activate();
       }
     ]);
 })();

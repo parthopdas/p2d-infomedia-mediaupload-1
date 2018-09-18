@@ -6,11 +6,9 @@
   angular
     .module("webApiSample")
     .service("fileService", [
-      "$http", "$q", "apiUrl", function($http, $q, apiUrl) {
+      "$http", "$q", "apiUrl", "Upload", function($http, $q, apiUrl, Upload) {
 
-        //Get all photos saved on the server  
         function getAll() {
-
           var deferred = $q.defer();
 
           $http.get(apiUrl)
@@ -24,9 +22,7 @@
           return deferred.promise;
         }
 
-        //Get photo from server with given file name        
         function getPhoto(fileName) {
-
           var deferred = $q.defer();
 
           $http.get(apiUrl + fileName)
@@ -40,9 +36,24 @@
           return deferred.promise;
         }
 
-        // Delete photo on the server with given file name      
-        function deletePhoto(fileName) {
+        function uploadPhoto(files) {
+          var deferred = $q.defer();
 
+          Upload.upload({
+            url: apiUrl,
+            data: { file: files }
+          })
+          .then(function(result) {
+            deferred.resolve(result);
+          },
+          function errorCallback(error) {
+            deferred.reject(error);
+          });
+
+          return deferred.promise;
+        }
+
+        function deletePhoto(fileName) {
           var deferred = $q.defer();
 
           $http.delete(apiUrl, { params: { fileName: fileName } })
@@ -59,10 +70,9 @@
         return {
           getAll: getAll,
           getPhoto: getPhoto,
+          uploadPhoto: uploadPhoto,
           deletePhoto: deletePhoto
         };
       }
     ]);
-
-
 })();

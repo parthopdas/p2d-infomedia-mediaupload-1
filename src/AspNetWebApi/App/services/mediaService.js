@@ -5,7 +5,6 @@
         .module("webApiSample")
         .service('mediaService', ['$rootScope', '$q', mediaService]);
 
-    //mediaService.$inject = ['$resource'];
     mediaService.$inject = ['$rootScope'];
     mediaService.$inject = ['$q'];
     
@@ -54,11 +53,11 @@
             _mediaHubProxy.invoke(mediaSignalR.removeMedia, mediaId);
         }
 
-        function _getAllMediasAsync() {
+        function _getAllMediaAsync() {
 
             var deferred = $q.defer();
 
-            _mediaHubProxy.invoke(mediaSignalR.getAllMedias)
+            _mediaHubProxy.invoke(mediaSignalR.getAllMedia)
                .done(function (media) {
                    deferred.resolve(media);
                });
@@ -75,7 +74,7 @@
         service.initialize = _initialize;
         service.addMedia = _addMedia;
         service.removeMedia = _removeMedia;
-        service.getAllMediasAsync = _getAllMediasAsync;
+        service.getAllMediaAsync = _getAllMediaAsync;
 
         return service;
     }

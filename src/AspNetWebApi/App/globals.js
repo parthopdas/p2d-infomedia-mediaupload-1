@@ -13,7 +13,7 @@ mediaSignalR.hubName = "mediaHub";
 // client calls
 mediaSignalR.addNote = "addMedia";
 mediaSignalR.removeMedia = "removeMedia";
-mediaSignalR.getAllMedias = "getAllMedia";
+mediaSignalR.getAllMedia = "getAllMedia";
 
 // client callbacks
 mediaSignalR.onNewMedia = "broadcastNewMedia";

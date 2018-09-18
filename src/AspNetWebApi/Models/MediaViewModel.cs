@@ -5,7 +5,7 @@ using System.Web;
 
 namespace AspNetWebApi.Models
 {
-  public class PhotoViewModel
+  public class Media
   {
     public string Name { get; set; }
     public DateTime Created { get; set; }

@@ -1,5 +1,5 @@
+using AspNetWebApi.Models;
 using System.Threading.Tasks;
-using AspNetWebApi.Models.Notes;
 
 namespace AspNetWebApi.Hubs.Notes
 {
@@ -7,6 +7,6 @@ namespace AspNetWebApi.Hubs.Notes
     {
         Task BroadcastNewMedia(Media newMedia);
 
-        Task BroadcastRemoveMedia(int mediaId);
+        Task BroadcastRemoveMedia(string mediaName);
     }
 }
