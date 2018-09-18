@@ -4,23 +4,23 @@
       <h3>{{vm.title}}</h3>
     </div>
   </div>
-
+  
   <div class="row">
     <div class="col-md-8">
-      <loading-spinner active="vm.spinner.active">
-        <ul class="list-group">
-          <li class="list-group-item list-group-item-info">
-            <div class="row">
-              <div class="col-lg-5 col-md-5 col-sm-11 col-xs-10">Name</div>
-              <div class="col-lg-2 col-md-2 hidden-sm hidden-xs">Size (kb)</div>
-              <div class="col-lg-2 col-md-2 hidden-sm hidden-xs">Created on</div>
-              <div class="col-lg-2 col-md-2 hidden-sm hidden-xs">Modified on</div>
-              <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2"></div>
-            </div>
-          </li>
-          <li class="list-group-item" ng-show="vm.photos.length === 0" ng-mouseenter="vm.setPreviewPhoto()">no photos</li>
-          <li ng-repeat="photo in vm.photos" class="list-group-item" ng-mouseenter="vm.setPreviewPhoto(photo)" ng-mouseleave="vm.setPreviewPhoto()">
-            <div class="row">
+      <ul class="list-group">
+        <li class="list-group-item list-group-item-info">
+          <div class="row">
+            <div class="col-lg-5 col-md-5 col-sm-11 col-xs-10">Name</div>
+            <div class="col-lg-2 col-md-2 hidden-sm hidden-xs">Size (kb)</div>
+            <div class="col-lg-2 col-md-2 hidden-sm hidden-xs">Created on</div>
+            <div class="col-lg-2 col-md-2 hidden-sm hidden-xs">Modified on</div>
+            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2"></div>
+          </div>
+        </li>
+        <li class="list-group-item" ng-show="vm.photos.length === 0" ng-mouseenter="vm.setPreviewPhoto()">no photos</li>
+        <li ng-repeat="photo in vm.photos" class="list-group-item" ng-mouseenter="vm.setPreviewPhoto(photo)" ng-mouseleave="vm.setPreviewPhoto()">
+          <div class="row">
+            <loading-spinner active="photo.Uploading">
               <div class="col-lg-5 col-md-5 col-sm-11 col-xs-10 wraptext">{{photo.Name}}</div>
               <div class="col-lg-2 col-md-2 hidden-sm hidden-xs">{{photo.Size}}</div>
               <div class="col-lg-2 col-md-2 hidden-sm hidden-xs">{{photo.Created | date: short}}</div>
@@ -30,10 +30,10 @@
                   <span class="glyphicon glyphicon-remove"></span>
                 </button>
               </div>
-            </div>
-          </li>
-        </ul>
-      </loading-spinner>
+            </loading-spinner>
+          </div>
+        </li>
+      </ul>
 
 
       <form name="newPhotosForm" role="form" enctype="multipart/form-data">

@@ -95,6 +95,8 @@ namespace AspNetWebApi.Controllers
         /// <returns></returns>
         public async Task<IHttpActionResult> Add()
         {
+            await Task.Delay(10000);
+
             // Check if the request contains multipart/form-data.
             if (!Request.Content.IsMimeMultipartContent("form-data"))
             {

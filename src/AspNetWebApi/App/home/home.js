@@ -20,30 +20,30 @@
         vm.photos = [];
         vm.files = [];
         vm.previewPhoto = {};
-        vm.spinner = {
-          active: true
-        };
 
         //Functions
         function setPreviewPhoto(photo) {
-          vm.previewPhoto = photo;
+          if (photo && !photo.Uploading) {
+            vm.previewPhoto = photo;
+          } else {
+            vm.previewPhoto = null;
+          }
         }
 
         function activate() {
-          vm.spinner.active = true;
           fileService.getAll()
             .then(function (data) {
               vm.photos = data.data.Photos;
-              vm.spinner.active = false;
               setPreviewPhoto();
             }, function(err) {
               console.log("Error status: " + err.status);
-              vm.spinner.active = false;
             });
         }
 
         function uploadFiles(files) {
-          vm.spinner.active = true;
+          vm.photos.push({ Name: files[0].name, Size: files[0].size, Uploading: true });
+          vm.photos.sort((o1, o2) => o1.Name.localeCompare(o2.Name));
+
           Upload.upload({
               url: apiUrl,
               data: { file: files }
@@ -51,13 +51,9 @@
             .then(function(response) {
               activate();
               setPreviewPhoto();
-              vm.spinner.active = false;
             }, function(err) {
               console.log("Error status: " + err.status);
-              vm.spinner.active = false;
             });
-
-          
         }
 
         function removePhoto(photo) {
